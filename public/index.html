@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <title>RAVR v1.2</title>
+  <style>
+    body {
+      background-color: #0f0f0f;
+      color: #e0e0e0;
+      font-family: 'Segoe UI', sans-serif;
+      padding: 20px;
+    }
+    h1 { color: #00ff7f; }
+    input, button, select {
+      padding: 10px; margin: 5px; border: none; border-radius: 4px; font-size: 1em;
+    }
+    .track, .offline-track {
+      background: #1e1e1e;
+      margin: 10px 0; padding: 10px;
+      border-radius: 6px;
+    }
+    audio { width: 100%; margin-top: 5px; }
+    .slider {
+      width: 100%; margin-top: 15px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔊 RAVR v1.2 – Techno Audio Weapon</h1>
+
+  <h2>📡 Online z Navidrome</h2>
+  <input id="server" placeholder="http://localhost:4533" />
+  <input id="token" placeholder="API token" />
+  <button onclick="fetchSongs()">Načíst skladby</button>
+  <div id="tracks"></div>
+
+  <h2>🎚 DSP (EQ simulace)</h2>
+  <label for="eq">Basový boost:</label>
+  <input type="range" id="eq" class="slider" min="0" max="100" value="50" oninput="document.getElementById('eqVal').innerText = this.value">
+  <span id="eqVal">50</span>
+
+  <h2>🎧 Výstupní zařízení (simulace)</h2>
+  <select id="output" onchange="changeOutput(this.value)">
+    <option value="A1">A1 – KRK</option>
+    <option value="A2">A2 – Sluchátka</option>
+  </select>
+
+  <h2>📁 Offline přehrávání (FLAC/WAV)</h2>
+  <input type="file" multiple accept=".flac,.wav" onchange="handleOffline(event)" />
+  <div id="offline"></div>
+
+  <script>
+    async function fetchSongs() {
+      const server = document.getElementById('server').value;
+      const token = document.getElementById('token').value;
+      const url = `${server}/rest/getRandomSongs?u=admin&t=${token}&s=ravr&v=1.16.1&c=ravr&f=json&size=5`;
+
+      const res = await fetch(url);
+      const data = await res.json();
+      const songs = data?.randomSongs?.song || [];
+
+      const container = document.getElementById('tracks');
+      container.innerHTML = '';
+      songs.forEach(track => {
+        const el = document.createElement('div');
+        el.className = 'track';
+        el.innerHTML = `
+          <div><strong>${track.title}</strong> – ${track.artist}</div>
+          <div>${track.album}</div>
+          <audio controls src="${server}/rest/stream.view?id=${track.id}&u=admin&t=${token}&s=ravr&v=1.16.1&c=ravr"></audio>
+        `;
+        container.appendChild(el);
+      });
+    }
+
+    function handleOffline(e) {
+      const container = document.getElementById('offline');
+      container.innerHTML = '';
+      Array.from(e.target.files).forEach(file => {
+        const el = document.createElement('div');
+        el.className = 'offline-track';
+        el.innerHTML = `
+          <div><strong>${file.name}</strong></div>
+          <audio controls src="${URL.createObjectURL(file)}"></audio>
+        `;
+        container.appendChild(el);
+      });
+    }
+
+    function changeOutput(value) {
+      alert('Simulováno přepnutí na VoiceMeeter výstup: ' + value);
+    }
+  </script>
+</body>
+</html>

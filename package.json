@@ -1,0 +1,15 @@
+{
+  "name": "ravr",
+  "version": "1.2.0",
+  "description": "RAVR – techno audio přehrávač",
+  "main": "main.js",
+  "scripts": {
+    "dev": "electron .",
+    "build": "echo 'Build script TBD'"
+  },
+  "author": "Cashi x ChatGPT",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^27.0.0"
+  }
+}
